@@ -79,6 +79,8 @@ interface StoreContextType {
   clearCart: () => void;
   cartTotalUSD: number;
   cartItemsCount: number;
+  addedItemToast: { product: Product; variant: ProductVariant } | null;
+  dismissToast: () => void;
 
   // Checkout & Orders (Omnichannel Courier vs Click & Collect)
   isCheckoutOpen: boolean;
@@ -272,6 +274,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [addedItemToast, setAddedItemToast] = useState<{ product: Product; variant: ProductVariant } | null>(null);
+  const dismissToast = () => setAddedItemToast(null);
 
   // Orders
   const [orders, setOrders] = useState<Order[]>(SAMPLE_ORDERS);
@@ -626,7 +630,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       return [...prevCart, { product, selectedVariant: variant, quantity }];
     });
-    setIsCartOpen(true);
+    // Trigger subtle toast notification without opening full drawer abruptly
+    setAddedItemToast({ product, variant });
   };
 
   const removeFromCart = (productId: string, variantId: string) => {
@@ -775,6 +780,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         clearCart,
         cartTotalUSD,
         cartItemsCount,
+        addedItemToast,
+        dismissToast,
         isCheckoutOpen,
         setIsCheckoutOpen,
         orders,

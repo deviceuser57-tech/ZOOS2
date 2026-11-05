@@ -47,19 +47,19 @@ export const CartDrawer: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/75 backdrop-blur-sm flex justify-end">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end">
       <div
-        className="w-full max-w-md bg-[#0d1117] border-s border-slate-800 text-slate-100 flex flex-col h-full shadow-2xl animate-in slide-in-from-end duration-300"
+        className="w-full max-w-md bg-white dark:bg-[#0d1117] border-s border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 flex flex-col h-full shadow-2xl animate-in slide-in-from-end duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-cyan-400" />
-            <h2 className="text-base sm:text-lg font-bold text-white">
+            <ShoppingBag className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
               {lang === 'ar' ? 'سلة المشتريات' : 'Shopping Cart'}
             </h2>
-            <span className="text-xs text-slate-400">({cart.length})</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">({cart.length})</span>
           </div>
 
           <button
@@ -72,22 +72,22 @@ export const CartDrawer: React.FC = () => {
         </div>
 
         {/* Free Shipping Bar Indicator */}
-        <div className="px-5 py-2.5 bg-slate-900 border-b border-slate-800 text-xs">
+        <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-xs">
           <div className="flex items-center gap-2 mb-1.5">
-            <Truck className="w-4 h-4 text-cyan-400 shrink-0" />
+            <Truck className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
             {qualifiesForFreeShipping ? (
-              <span className="text-emerald-400 font-semibold">
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
                 {lang === 'ar' ? 'مبارك! حصلت على شحن مجاني لكامل الطلب' : 'Awesome! Free shipping unlocked'}
               </span>
             ) : (
-              <span className="text-slate-300">
+              <span className="text-slate-600 dark:text-slate-300">
                 {lang === 'ar'
                   ? `أضف ${formatPrice(freeShippingThresholdUSD - cartTotalUSD)} للحصول على شحن مجاني`
                   : `Add ${formatPrice(freeShippingThresholdUSD - cartTotalUSD)} for Free Shipping`}
               </span>
             )}
           </div>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
             <div
               className="bg-cyan-500 h-full rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, (cartTotalUSD / freeShippingThresholdUSD) * 100)}%` }}
@@ -121,17 +121,17 @@ export const CartDrawer: React.FC = () => {
               return (
                 <div
                   key={`${item.product.id}-${item.selectedVariant.id}`}
-                  className="flex gap-3 p-3 bg-slate-900/80 border border-slate-800 rounded-xl"
+                  className="flex gap-3 p-3 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl"
                 >
                   <img
                     src={item.product.imageUrl}
                     alt={lang === 'ar' ? item.product.titleAr : item.product.titleEn}
-                    className="w-16 h-16 rounded-lg object-cover bg-slate-950 shrink-0"
+                    className="w-16 h-16 rounded-lg object-cover bg-slate-200 dark:bg-slate-950 shrink-0"
                   />
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start">
-                        <h4 className="text-xs sm:text-sm font-semibold text-white line-clamp-1">
+                        <h4 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white line-clamp-1">
                           {lang === 'ar' ? item.product.titleAr : item.product.titleEn}
                         </h4>
                         <button

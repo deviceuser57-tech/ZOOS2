@@ -91,15 +91,15 @@ export const ProductDetailModal: React.FC = () => {
   const inWishlist = isInWishlist(selectedProduct.id);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
       <div
-        className="relative w-full max-w-4xl bg-[#0f131a] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl text-slate-100 my-8 animate-in fade-in zoom-in-95 duration-200"
+        className="relative w-full max-w-4xl bg-white dark:bg-[#0f131a] border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-2xl text-slate-900 dark:text-slate-100 my-8 animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={() => setSelectedProduct(null)}
-          className="absolute top-4 start-4 z-10 p-2.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+          className="absolute top-4 start-4 z-10 p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -141,26 +141,26 @@ export const ProductDetailModal: React.FC = () => {
             </button>
 
             {/* Dropship Assurance Mini Cards */}
-            <div className="grid grid-cols-3 gap-2 p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-[11px]">
+            <div className="grid grid-cols-3 gap-2 p-3 bg-slate-50 dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px]">
               <div className="flex flex-col items-center text-center p-1">
-                <Truck className="w-4 h-4 text-cyan-400 mb-1" />
-                <span className="text-slate-300 font-medium">
+                <Truck className="w-4 h-4 text-cyan-600 dark:text-cyan-400 mb-1" />
+                <span className="text-slate-700 dark:text-slate-300 font-medium">
                   {lang === 'ar' ? 'شحن مباشر' : 'Fast Dropship'}
                 </span>
                 <span className="text-slate-500">
                   {selectedProduct.deliveryDaysMin}-{selectedProduct.deliveryDaysMax} {lang === 'ar' ? 'أيام' : 'days'}
                 </span>
               </div>
-              <div className="flex flex-col items-center text-center p-1 border-x border-slate-800">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 mb-1" />
-                <span className="text-slate-300 font-medium">
+              <div className="flex flex-col items-center text-center p-1 border-x border-slate-200 dark:border-slate-800">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mb-1" />
+                <span className="text-slate-700 dark:text-slate-300 font-medium">
                   {lang === 'ar' ? 'ضمان الجودة' : 'Verified Tech'}
                 </span>
                 <span className="text-slate-500">{lang === 'ar' ? 'مورد معتمد' : 'Original spec'}</span>
               </div>
               <div className="flex flex-col items-center text-center p-1">
-                <RotateCcw className="w-4 h-4 text-amber-400 mb-1" />
-                <span className="text-slate-300 font-medium">
+                <RotateCcw className="w-4 h-4 text-amber-600 dark:text-amber-400 mb-1" />
+                <span className="text-slate-700 dark:text-slate-300 font-medium">
                   {lang === 'ar' ? 'استبدال 14 يوم' : '14d Return'}
                 </span>
                 <span className="text-slate-500">{lang === 'ar' ? 'ضمان استرجاع' : 'Warranty'}</span>
@@ -191,27 +191,27 @@ export const ProductDetailModal: React.FC = () => {
               </div>
 
               {/* Title */}
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 leading-snug">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3 leading-snug">
                 {lang === 'ar' ? selectedProduct.titleAr : selectedProduct.titleEn}
               </h2>
 
               {/* Price display */}
               <div className="flex items-baseline gap-3 mb-3">
-                <span className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">
+                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums">
                   {formatPrice(unitPrice)}
                 </span>
                 {selectedProduct.originalPriceUSD && (
-                  <span className="text-base text-slate-500 line-through tabular-nums">
+                  <span className="text-base text-slate-400 line-through tabular-nums">
                     {formatPrice(selectedProduct.originalPriceUSD)}
                   </span>
                 )}
-                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   {lang === 'ar' ? 'وفر 35%' : 'Save 35%'}
                 </span>
               </div>
 
               {/* Description */}
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-3">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
                 {lang === 'ar' ? selectedProduct.descriptionAr : selectedProduct.descriptionEn}
               </p>
 
@@ -535,8 +535,8 @@ export const ProductDetailModal: React.FC = () => {
         </div>
 
         {/* You May Also Like Section */}
-        <div className="p-6 sm:p-8 bg-slate-900/30 border-t border-slate-800">
-           <h3 className="text-base font-bold text-white mb-4">
+        <div className="p-6 sm:p-8 bg-slate-50 dark:bg-slate-900/30 border-t border-slate-200 dark:border-slate-800">
+           <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">
              {lang === 'ar' ? 'منتجات قد تعجبك' : 'You May Also Like'}
            </h3>
            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -547,11 +547,11 @@ export const ProductDetailModal: React.FC = () => {
                    setSelectedProduct(prod);
                    addToBrowsingHistory(prod.id);
                  }}
-                 className="p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 text-start transition-all"
+                 className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 text-start transition-all shadow-sm cursor-pointer"
                >
                  <img src={prod.imageUrl} alt={lang === 'ar' ? prod.titleAr : prod.titleEn} className="w-full aspect-square object-cover rounded-xl mb-2" />
-                 <p className="text-xs font-bold text-white truncate">{lang === 'ar' ? prod.titleAr : prod.titleEn}</p>
-                 <p className="text-[10px] text-cyan-400 font-mono">{formatPrice(prod.priceUSD)}</p>
+                 <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{lang === 'ar' ? prod.titleAr : prod.titleEn}</p>
+                 <p className="text-[10px] text-cyan-600 dark:text-cyan-400 font-mono font-bold">{formatPrice(prod.priceUSD)}</p>
                </button>
              ))}
            </div>

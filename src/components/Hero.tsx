@@ -34,15 +34,15 @@ export const Hero: React.FC = () => {
   const currentSlide = slides[safeSlideIndex];
 
   return (
-    <section className="relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-b from-[#0a0e17] via-[#0c0f14] to-[#0c0f14] py-6 lg:py-10">
+    <section className="relative overflow-hidden border-b border-slate-200 dark:border-slate-800/80 bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 dark:from-[#0a0e17] dark:via-[#0c0f14] dark:to-[#0c0f14] py-6 lg:py-10 transition-colors">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 space-y-6 lg:space-y-8">
         
         {/* Main Hero Banner Box */}
         <div
-          className={`relative rounded-3xl overflow-hidden border transition-all duration-500 bg-slate-950 shadow-2xl ${
+          className={`relative rounded-3xl overflow-hidden border transition-all duration-500 bg-slate-900 dark:bg-slate-950 shadow-xl ${
             currentSlide.hasAnimationEffect
               ? 'border-cyan-500/40 shadow-cyan-500/20 ring-1 ring-cyan-500/30'
-              : 'border-slate-800 shadow-slate-950/60'
+              : 'border-slate-800 shadow-slate-900/40'
           }`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[460px] items-stretch">
@@ -202,7 +202,7 @@ export const Hero: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={lang === 'ar' ? 'ابحث في متجر Zoos: كفر كاربون، ساعة تيتانيوم، شاحن MagSafe، سماعات ANC...' : 'Search Zoos: Carbon case, Titanium watch, MagSafe 3-in-1...'}
-                className={`w-full bg-slate-900/90 border border-slate-800 rounded-2xl py-3.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all ${
+                className={`w-full bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl py-3.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all shadow-sm ${
                   lang === 'ar' ? 'pr-11 pl-4' : 'pl-11 pr-4'
                 }`}
               />
@@ -210,12 +210,12 @@ export const Hero: React.FC = () => {
           </div>
 
           <div className="lg:col-span-5 flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-slate-500 font-medium">{lang === 'ar' ? 'التوافق:' : 'Device:'}</span>
+            <span className="text-slate-500 dark:text-slate-400 font-medium">{lang === 'ar' ? 'التوافق:' : 'Device:'}</span>
             {['all', 'Apple', 'Samsung', 'Universal'].map((b) => (
               <button
                 key={b}
                 onClick={() => setSelectedBrand(b)}
-                className="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors border border-slate-800 text-xs"
+                className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors border border-slate-200 dark:border-slate-800 text-xs shadow-sm"
               >
                 {b === 'all' ? (lang === 'ar' ? 'جميع الأجهزة' : 'All Devices') : b}
               </button>
@@ -224,44 +224,44 @@ export const Hero: React.FC = () => {
         </div>
 
         {/* Trust Badges Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-800/80">
-          <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60 flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-200 dark:border-slate-800/80">
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 flex items-center gap-3 shadow-sm">
+            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
               <Truck className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-bold text-white text-xs sm:text-sm">
+              <p className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
                 {lang === 'ar' ? 'شحن مباشر أو استلام من المعرض' : 'Direct Dropship & Store Pickup'}
               </p>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {lang === 'ar' ? 'شحن سريع لباب منزلك أو استلام من X-Mall' : 'Expedited courier or immediate Click & Collect'}
               </p>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60 flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 flex items-center gap-3 shadow-sm">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-bold text-white text-xs sm:text-sm">
+              <p className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
                 {lang === 'ar' ? 'ضمان جودة Zoos المعتمد' : '100% Quality Guaranteed'}
               </p>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {lang === 'ar' ? 'فحص مصنعي واختبار إلكتروني كامل' : 'Rigorous factory testing & specs'}
               </p>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60 flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400">
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 flex items-center gap-3 shadow-sm">
+            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
               <RotateCcw className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-bold text-white text-xs sm:text-sm">
+              <p className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
                 {lang === 'ar' ? 'الدفع عند الاستلام واستبدال 14 يوم' : 'Cash on Delivery & 14d Return'}
               </p>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {lang === 'ar' ? 'ادفع بعد المعاينة براحة بال' : 'Pay when you receive your order'}
               </p>
             </div>

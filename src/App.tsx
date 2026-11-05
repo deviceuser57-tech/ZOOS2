@@ -15,12 +15,15 @@ import { WishlistDrawer } from './components/WishlistDrawer';
 import { PriceDropModal } from './components/PriceDropModal';
 import { PosRegisterModal } from './components/PosRegisterModal';
 import { AiImageStudioModal } from './components/AiImageStudioModal';
+import { PromotionalCarousel } from './components/PromotionalCarousel';
+import { CartToast } from './components/CartToast';
 import { Footer } from './components/Footer';
 import { Smartphone, Headphones, Watch, Filter, ArrowLeftRight } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const {
     lang,
+    darkMode,
     activeView,
     selectedCategory,
     setSelectedCategory,
@@ -32,6 +35,10 @@ const MainContent: React.FC = () => {
     comparisonList,
     setIsComparisonModalOpen,
   } = useStore();
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
 
   // Filter products by category, search query, and brand compatibility
   const filteredProducts = products.filter((product) => {
@@ -62,8 +69,9 @@ const MainContent: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-[#0c0f14] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0c0f14] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       <Navbar />
+      <PromotionalCarousel />
 
       <main className="flex-1">
         {/* View 1: Main Storefront */}
@@ -318,6 +326,7 @@ const MainContent: React.FC = () => {
       <PriceDropModal />
       <PosRegisterModal />
       <AiImageStudioModal />
+      <CartToast />
 
       <Footer />
     </div>
