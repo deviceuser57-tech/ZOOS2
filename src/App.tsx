@@ -17,8 +17,9 @@ import { PosRegisterModal } from './components/PosRegisterModal';
 import { AiImageStudioModal } from './components/AiImageStudioModal';
 import { PromotionalCarousel } from './components/PromotionalCarousel';
 import { CartToast } from './components/CartToast';
+import { CompatibilityFinder } from './components/CompatibilityFinder';
 import { Footer } from './components/Footer';
-import { Smartphone, Headphones, Watch, Filter, ArrowLeftRight } from 'lucide-react';
+import { Smartphone, Headphones, Watch, Filter, ArrowLeftRight, Cpu } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const {
@@ -34,6 +35,9 @@ const MainContent: React.FC = () => {
     products,
     comparisonList,
     setIsComparisonModalOpen,
+    selectedCompatibilityDevice,
+    setSelectedCompatibilityDevice,
+    setIsCompatibilityFinderOpen,
   } = useStore();
 
   useEffect(() => {
@@ -54,6 +58,15 @@ const MainContent: React.FC = () => {
         b.toLowerCase() === 'universal'
       );
       if (!matchBrand) return false;
+    }
+
+    // Smart Device Compatibility filter
+    if (selectedCompatibilityDevice) {
+      const dev = selectedCompatibilityDevice.toLowerCase();
+      const matchDevice = product.brandCompatibility.some((b) =>
+        dev.includes(b.toLowerCase()) || b.toLowerCase().includes('universal')
+      );
+      if (!matchDevice) return false;
     }
 
     // Search query filter
@@ -152,19 +165,26 @@ const MainContent: React.FC = () => {
               </div>
 
               {/* Active Search & Filter chips */}
-              {(searchQuery || selectedBrand !== 'all') && (
-                <div className="flex items-center gap-2 text-xs">
+              {(searchQuery || selectedBrand !== 'all' || selectedCompatibilityDevice) && (
+                <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="text-slate-500 dark:text-slate-400">{lang === 'ar' ? 'تصفية حسب:' : 'Active filters:'}</span>
+                  {selectedCompatibilityDevice && (
+                    <span className="px-2.5 py-1 rounded-md bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/40 flex items-center gap-1.5 shadow-sm font-semibold">
+                      <Cpu className="w-3.5 h-3.5 text-cyan-500" />
+                      <span>{lang === 'ar' ? `متوافق مع: ${selectedCompatibilityDevice}` : `Fits: ${selectedCompatibilityDevice}`}</span>
+                      <button onClick={() => setSelectedCompatibilityDevice(null)} className="hover:text-rose-500 font-bold ms-1 cursor-pointer">×</button>
+                    </span>
+                  )}
                   {searchQuery && (
                     <span className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-sm">
                       <span>"{searchQuery}"</span>
-                      <button onClick={() => setSearchQuery('')} className="hover:text-slate-900 dark:hover:text-white">×</button>
+                      <button onClick={() => setSearchQuery('')} className="hover:text-slate-900 dark:hover:text-white cursor-pointer">×</button>
                     </span>
                   )}
                   {selectedBrand !== 'all' && (
                     <span className="px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-sm">
                       <span>{selectedBrand}</span>
-                      <button onClick={() => setSelectedBrand('all')} className="hover:text-slate-900 dark:hover:text-white">×</button>
+                      <button onClick={() => setSelectedBrand('all')} className="hover:text-slate-900 dark:hover:text-white cursor-pointer">×</button>
                     </span>
                   )}
                   <button
@@ -172,8 +192,9 @@ const MainContent: React.FC = () => {
                       setSearchQuery('');
                       setSelectedBrand('all');
                       setSelectedCategory('all');
+                      setSelectedCompatibilityDevice(null);
                     }}
-                    className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline text-[11px] ms-2"
+                    className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline text-[11px] ms-2 cursor-pointer"
                   >
                     {lang === 'ar' ? 'إعادة ضبط التصفية' : 'Reset all'}
                   </button>
@@ -327,6 +348,7 @@ const MainContent: React.FC = () => {
       <PosRegisterModal />
       <AiImageStudioModal />
       <CartToast />
+      <CompatibilityFinder />
 
       <Footer />
     </div>

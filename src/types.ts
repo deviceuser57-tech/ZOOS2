@@ -1,3 +1,5 @@
+export * from './types/product';
+
 export type Category = 'all' | 'phone_accessories' | 'earphones' | 'smartwatches';
 
 export type CurrencyCode = 'SAR' | 'AED' | 'EGP' | 'USD';

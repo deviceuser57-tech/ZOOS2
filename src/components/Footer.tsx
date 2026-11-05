@@ -71,14 +71,14 @@ export const Footer: React.FC = () => {
 
           {/* Customer Service & Comparison */}
           <div className="space-y-2">
-            <h4 className="font-semibold text-white uppercase tracking-wider text-xs">
+            <h4 className="font-semibold text-slate-900 dark:text-white uppercase tracking-wider text-xs">
               {lang === 'ar' ? 'خدمة العملاء والأدوات' : 'Tools & Support'}
             </h4>
-            <ul className="space-y-1.5 text-slate-400">
+            <ul className="space-y-1.5 text-slate-600 dark:text-slate-400">
               <li>
                 <button
                   onClick={() => setIsComparisonModalOpen(true)}
-                  className="hover:text-cyan-400 transition-colors text-cyan-400 font-semibold"
+                  className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors text-cyan-600 dark:text-cyan-400 font-semibold cursor-pointer"
                 >
                   {lang === 'ar' ? '⚡ أداة مقارنة المنتجات (جدول جانبي)' : '⚡ Product Comparison Matrix'}
                 </button>
@@ -86,7 +86,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => setActiveView('tracking')}
-                  className="hover:text-cyan-400 transition-colors"
+                  className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
                 >
                   {lang === 'ar' ? 'تتبع الشحنة المباشر' : 'Live Order Tracking'}
                 </button>
@@ -94,24 +94,24 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => setActiveView('dropship_ops')}
-                  className="hover:text-cyan-400 transition-colors"
+                  className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
                 >
                   {lang === 'ar' ? 'بوابة إدارة الدروب شيبينغ' : 'Merchant Dropship Ops'}
                 </button>
               </li>
-              <li className="text-slate-500">
+              <li className="text-slate-500 dark:text-slate-400">
                 {lang === 'ar' ? 'سياسة الاستبدال خلال 14 يوماً' : '14-Day Warranty & Returns'}
               </li>
             </ul>
           </div>
 
           {/* Dropship Guarantee badge */}
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-            <div className="flex items-center gap-1.5 text-cyan-400 font-semibold text-xs">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+            <div className="flex items-center gap-1.5 text-cyan-600 dark:text-cyan-400 font-semibold text-xs">
               <ShieldCheck className="w-4 h-4" />
               <span>{lang === 'ar' ? 'ضمان التوريد المباشر' : 'Direct Dropship Guarantee'}</span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-normal">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
               {lang === 'ar'
                 ? 'يتم فحص وتغليف كل منتج بدقة واختبار التوافق الإلكتروني قبل خروجه من خط الشحن الدولي السريع.'
                 : 'Every tech accessory passes strict electronic functional verification before expedited air dispatch.'}
@@ -120,7 +120,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Quiet copyright row */}
-        <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500 text-[11px]">
+        <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500 dark:text-slate-400 text-[11px]">
           <p>© 2026 Zoos Electronics. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}</p>
           <div className="flex items-center gap-4">
             <span>{lang === 'ar' ? 'شحن مباشر: 3-6 أيام عمل' : 'Fast Dropship: 3-6 Days'}</span>

@@ -101,6 +101,12 @@ interface StoreContextType {
   isComparisonModalOpen: boolean;
   setIsComparisonModalOpen: (open: boolean) => void;
 
+  // Smart Compatibility Finder
+  isCompatibilityFinderOpen: boolean;
+  setIsCompatibilityFinderOpen: (open: boolean) => void;
+  selectedCompatibilityDevice: string | null;
+  setSelectedCompatibilityDevice: (device: string | null) => void;
+
   // Multi-Location Inventory & RBAC
   currentRole: UserRole;
   setCurrentRole: (role: UserRole) => void;
@@ -284,6 +290,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Comparison
   const [comparisonList, setComparisonList] = useState<Product[]>([INITIAL_PRODUCTS[0], INITIAL_PRODUCTS[1]]);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
+
+  // Smart Compatibility Finder
+  const [isCompatibilityFinderOpen, setIsCompatibilityFinderOpen] = useState(false);
+  const [selectedCompatibilityDevice, setSelectedCompatibilityDevice] = useState<string | null>(null);
 
   // Multi-Location Inventory & RBAC
   const [currentRole, setCurrentRole] = useState<UserRole>('owner');
@@ -797,6 +807,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isInComparison,
         isComparisonModalOpen,
         setIsComparisonModalOpen,
+        isCompatibilityFinderOpen,
+        setIsCompatibilityFinderOpen,
+        selectedCompatibilityDevice,
+        setSelectedCompatibilityDevice,
         currentRole,
         setCurrentRole,
         locationStocks,

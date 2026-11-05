@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, PackageCheck, BarChart3, Globe, ArrowLeftRight, Heart, ShieldAlert, Sun, Moon } from 'lucide-react';
+import { ShoppingBag, PackageCheck, BarChart3, Globe, ArrowLeftRight, Heart, ShieldAlert, Sun, Moon, Cpu, Sparkles } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { CurrencyCode, Category } from '../types';
 
@@ -20,6 +20,8 @@ export const Navbar: React.FC = () => {
     setIsComparisonModalOpen,
     wishlist,
     setIsWishlistOpen,
+    setIsCompatibilityFinderOpen,
+    selectedCompatibilityDevice,
   } = useStore();
 
   const handleNavClick = (category: Category | 'tracking' | 'dropship') => {
@@ -59,37 +61,32 @@ export const Navbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Zone 2: Navigation Links */}
+        {/* Zone 2: Navigation Links (Clean header without the 3 removed categories) */}
         <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-slate-600 dark:text-slate-300">
           <button
             onClick={() => handleNavClick('all')}
-            className={`hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 ${
+            className={`hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               activeView === 'store' ? 'text-cyan-600 dark:text-cyan-400 font-semibold' : ''
             }`}
           >
             {lang === 'ar' ? 'جميع المنتجات' : 'All Catalog'}
           </button>
+
+          {/* Smart Device Compatibility Tool Button */}
           <button
-            onClick={() => handleNavClick('phone_accessories')}
-            className="hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0"
+            onClick={() => setIsCompatibilityFinderOpen(true)}
+            className="hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 text-xs font-semibold"
           >
-            {lang === 'ar' ? 'إكسسوارات الهواتف' : 'Phone Gear'}
+            <Cpu className="w-3.5 h-3.5 text-cyan-500" />
+            <span>{lang === 'ar' ? 'فاحص التوافق الذكي' : 'Compatibility Finder'}</span>
+            {selectedCompatibilityDevice && (
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            )}
           </button>
-          <button
-            onClick={() => handleNavClick('earphones')}
-            className="hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0"
-          >
-            {lang === 'ar' ? 'السماعات الصوتية' : 'Headphones'}
-          </button>
-          <button
-            onClick={() => handleNavClick('smartwatches')}
-            className="hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0"
-          >
-            {lang === 'ar' ? 'الساعات الذكية' : 'Smartwatches'}
-          </button>
+
           <button
             onClick={() => handleNavClick('tracking')}
-            className={`hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+            className={`hover:text-cyan-500 dark:hover:text-white transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
               activeView === 'tracking' ? 'text-cyan-600 dark:text-cyan-400 font-semibold' : ''
             }`}
           >

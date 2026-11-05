@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Upload, CheckCircle2, Image, Trash2, ArrowRight, Save, Eye } from 'lucide-react';
+import { X, Sparkles, Upload, CheckCircle2, Image, Trash2, ArrowRight, Save, Eye, Palette, Cpu, Barcode, ShieldCheck } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types';
 import { SMARTWATCH_IMAGE_URL, HEADPHONES_IMAGE_URL, CHARGER_IMAGE_URL, HERO_IMAGE_URL, ZOOS_HERO_IMAGE_URL } from '../data/mockProducts';
+import { AI_ELECTRONICS_PROMPT_PRESETS } from '../constants';
 
 export const AiImageStudioModal: React.FC = () => {
   const {
@@ -31,6 +32,12 @@ export const AiImageStudioModal: React.FC = () => {
   const [imageUrl, setImageUrl] = useState(CHARGER_IMAGE_URL);
   const [compatibility, setCompatibility] = useState('Apple, Samsung, Universal');
 
+  // Step 3 Attributes: Serial Number & Colors
+  const [serialNumber, setSerialNumber] = useState('');
+  const [colorHex, setColorHex] = useState('#18181b');
+  const [colorNameAr, setColorNameAr] = useState('أسود تيتانيوم');
+  const [selectedElectronicsPrompt, setSelectedElectronicsPrompt] = useState('cyberpunk-neon');
+
   // AI Image Processing Presets
   const [selectedPreset, setSelectedPreset] = useState<'cleanStudio' | 'techDesk' | 'titaniumLuxury'>('cleanStudio');
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -52,6 +59,11 @@ export const AiImageStudioModal: React.FC = () => {
       setDescriptionAr(aiStudioSelectedProduct.descriptionAr);
       setImageUrl(aiStudioSelectedProduct.imageUrl);
       setCompatibility(aiStudioSelectedProduct.brandCompatibility.join(', '));
+      setSerialNumber(aiStudioSelectedProduct.sku ? `SN-${aiStudioSelectedProduct.sku}` : `SN-ZE-${Date.now().toString().slice(-6)}`);
+      if (aiStudioSelectedProduct.variants?.[0]) {
+        setColorHex(aiStudioSelectedProduct.variants[0].colorHex || '#18181b');
+        setColorNameAr(aiStudioSelectedProduct.variants[0].nameAr || 'اللون الأساسي');
+      }
       setAiPreviewUrl(null);
     } else {
       // New product defaults
@@ -63,6 +75,9 @@ export const AiImageStudioModal: React.FC = () => {
       setWarrantyMonths(18);
       setSku(`ZE-AI-${Math.floor(1000 + Math.random() * 9000)}`);
       setBarcode(`622999${Math.floor(100000 + Math.random() * 900000)}`);
+      setSerialNumber(`SN-ZE-${Date.now().toString().slice(-6)}`);
+      setColorHex('#18181b');
+      setColorNameAr('أسود تيتانيوم');
       setDescriptionAr('منتج تقني معتمد مع فحص جودة استثنائي وضمان استبدال مباشر.');
       setImageUrl(CHARGER_IMAGE_URL);
       setCompatibility('Apple, Samsung, Universal');
@@ -132,9 +147,17 @@ export const AiImageStudioModal: React.FC = () => {
         { labelAr: 'الضمان', labelEn: 'Warranty', value: `${warrantyMonths} شهراً` },
         { labelAr: 'الجودة', labelEn: 'Quality Grade', value: 'Original Spec A+' },
       ],
-      variants: aiStudioSelectedProduct?.variants || [
-        { id: 'v1', nameAr: 'اللون الأسود الأساسي', nameEn: 'Standard Black', colorHex: '#18181b', inStock: true },
-        { id: 'v2', nameAr: 'تيتانيوم فضي', nameEn: 'Silver Titanium', colorHex: '#9ca3af', inStock: true },
+      variants: [
+        {
+          id: 'v1',
+          nameAr: colorNameAr || 'اللون المختار',
+          nameEn: colorNameAr || 'Selected Color',
+          colorHex: colorHex || '#18181b',
+          inStock: true,
+        },
+        ...(aiStudioSelectedProduct?.variants?.slice(1) || [
+          { id: 'v2', nameAr: 'تيتانيوم فضي', nameEn: 'Silver Titanium', colorHex: '#9ca3af', inStock: true },
+        ]),
       ],
       supplierName: 'Zoos Electronics Certified Hub',
       supplierPlatform: 'CJDropshipping',
@@ -301,50 +324,29 @@ export const AiImageStudioModal: React.FC = () => {
               </div>
             </div>
 
-            {/* Presets Selection */}
-            <div className="space-y-2 text-xs">
-              <span className="font-semibold text-slate-300 block">
-                {lang === 'ar' ? 'أنماط الذكاء الاصطناعي الجاهزة للاستديو:' : 'AI Processing Studio Presets:'}
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedPreset('cleanStudio')}
-                  className={`p-2.5 rounded-xl border text-start transition-all ${
-                    selectedPreset === 'cleanStudio'
-                      ? 'bg-cyan-500/15 border-cyan-500 text-white'
-                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <p className="font-bold text-white text-[11px]">{lang === 'ar' ? 'استديو أبيض ناصع' : 'Pure White Studio'}</p>
-                  <p className="text-[10px] text-slate-400">{lang === 'ar' ? 'عزل خلفية وإضاءة محايدة' : 'Clean product backdrop'}</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedPreset('techDesk')}
-                  className={`p-2.5 rounded-xl border text-start transition-all ${
-                    selectedPreset === 'techDesk'
-                      ? 'bg-cyan-500/15 border-cyan-500 text-white'
-                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <p className="font-bold text-white text-[11px]">{lang === 'ar' ? 'مكتب تقني فاخر' : 'Tech Workspace'}</p>
-                  <p className="text-[10px] text-slate-400">{lang === 'ar' ? 'إضاءة محيطية وظلال ناعمة' : 'Ambient workstation'}</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedPreset('titaniumLuxury')}
-                  className={`p-2.5 rounded-xl border text-start transition-all ${
-                    selectedPreset === 'titaniumLuxury'
-                      ? 'bg-cyan-500/15 border-cyan-500 text-white'
-                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <p className="font-bold text-white text-[11px]">{lang === 'ar' ? 'حجر ترافنتين فاخر' : 'Luxury Pedestal'}</p>
-                  <p className="text-[10px] text-slate-400">{lang === 'ar' ? 'مظهر إلكترونيات راقي' : 'High-end flagship'}</p>
-                </button>
+              {/* Electronics AI Background Studio Prompts */}
+              <div className="space-y-1.5 pt-2">
+                <span className="font-semibold text-cyan-400 block text-[11px] flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-cyan-400" />
+                  <span>{lang === 'ar' ? 'برومبت استديو الإلكترونيات الذكية (AI Electronics Prompts):' : 'Electronics AI Background Presets:'}</span>
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  {AI_ELECTRONICS_PROMPT_PRESETS.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setSelectedElectronicsPrompt(p.id)}
+                      className={`p-2 rounded-xl border text-start transition-all text-[11px] ${
+                        selectedElectronicsPrompt === p.id
+                          ? 'bg-cyan-500/20 border-cyan-400 text-white ring-1 ring-cyan-500/40'
+                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <p className="font-bold text-white truncate">{lang === 'ar' ? p.nameAr : p.nameEn}</p>
+                      <p className="text-[10px] text-slate-500 line-clamp-1">{p.promptSnippet}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Action: Run AI Process */}
@@ -370,7 +372,6 @@ export const AiImageStudioModal: React.FC = () => {
                   </button>
                 )}
               </div>
-            </div>
 
             {/* Custom Image URL fallback */}
             <div className="text-xs space-y-1">
@@ -500,10 +501,89 @@ export const AiImageStudioModal: React.FC = () => {
                 </div>
               </div>
 
+              {/* Colors & Variants Input */}
+              <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-400">
+                  <Palette className="w-3.5 h-3.5" />
+                  <span>{lang === 'ar' ? 'إدخال اللون والإصدار (Color & Variant):' : 'Color & Swatch Variant:'}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">{lang === 'ar' ? 'اسم اللون' : 'Color Name'}</label>
+                    <input
+                      type="text"
+                      value={colorNameAr}
+                      onChange={(e) => setColorNameAr(e.target.value)}
+                      placeholder="أسود تيتانيوم"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">{lang === 'ar' ? 'رمز اللون (Hex)' : 'Color Hex'}</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={colorHex}
+                        onChange={(e) => setColorHex(e.target.value)}
+                        className="w-8 h-8 rounded border border-slate-700 bg-transparent cursor-pointer p-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={colorHex}
+                        onChange={(e) => setColorHex(e.target.value)}
+                        className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Serial & IMEI Tracking Input */}
+              <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-400">
+                    <Barcode className="w-3.5 h-3.5" />
+                    <span>{lang === 'ar' ? 'تتبع رقم السيريال والضمان (Serial Number / Warranty):' : 'Serial & IMEI Tracking:'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSerialNumber(`SN-ZE-${Date.now().toString().slice(-6)}`)}
+                    className="text-[10px] text-cyan-400 hover:underline"
+                  >
+                    {lang === 'ar' ? 'توليد تلقائي' : 'Generate'}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={serialNumber}
+                  onChange={(e) => setSerialNumber(e.target.value)}
+                  placeholder="SN-ZE-984210"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                />
+              </div>
+
+              {/* Device Compatibility Quick Selectors */}
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">
-                  {lang === 'ar' ? 'الأجهزة المتوافقة (مفصولة بفواصل)' : 'Compatibility (comma separated)'}
+                <label className="block text-slate-300 font-semibold mb-1 text-xs flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{lang === 'ar' ? 'الأجهزة المتوافقة (Compatibility):' : 'Compatibility:'}</span>
                 </label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {['iPhone 16 Pro Max', 'iPhone 15 Pro', 'Galaxy S25 Ultra', 'Apple Watch Ultra', 'Universal Qi2'].map((dev) => (
+                    <button
+                      key={dev}
+                      type="button"
+                      onClick={() => {
+                        if (!compatibility.includes(dev)) {
+                          setCompatibility(prev => prev ? `${prev}, ${dev}` : dev);
+                        }
+                      }}
+                      className="text-[10px] bg-slate-800 hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-300 px-2 py-1 rounded-md border border-slate-700 transition-colors"
+                    >
+                      + {dev}
+                    </button>
+                  ))}
+                </div>
                 <input
                   type="text"
                   value={compatibility}

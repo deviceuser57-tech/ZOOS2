@@ -20,6 +20,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     isInWishlist,
     setSelectedAlertProduct,
     setIsPriceDropModalOpen,
+    selectedCompatibilityDevice,
   } = useStore();
   const [imageError, setImageError] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
@@ -161,12 +162,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {lang === 'ar' ? product.titleAr : product.titleEn}
           </h3>
 
-          {/* Device Compatibility hint */}
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 mb-3">
-            <span>{lang === 'ar' ? 'متوافق مع:' : 'Compatible:'}</span>
-            <span className="text-slate-700 dark:text-slate-300 truncate font-mono">
-              {product.brandCompatibility.slice(0, 2).join(' · ')}
-            </span>
+          {/* Device Compatibility hint & Active device match badge */}
+          <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 mb-3">
+            {selectedCompatibilityDevice ? (
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <Check className="w-3 h-3 text-emerald-500" />
+                <span>{lang === 'ar' ? 'متوافق 100%' : '100% Fits'}</span>
+              </span>
+            ) : (
+              <>
+                <span>{lang === 'ar' ? 'متوافق مع:' : 'Compatible:'}</span>
+                <span className="text-slate-700 dark:text-slate-300 truncate font-mono">
+                  {product.brandCompatibility.slice(0, 2).join(' · ')}
+                </span>
+              </>
+            )}
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShieldCheck, Truck, RotateCcw, ArrowLeftRight, ChevronRight, ChevronLeft, Sparkles, Layers } from 'lucide-react';
+import { Search, ShieldCheck, Truck, RotateCcw, ArrowLeftRight, ChevronRight, ChevronLeft, Sparkles, Layers, Cpu } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export const Hero: React.FC = () => {
@@ -10,6 +10,7 @@ export const Hero: React.FC = () => {
     setSelectedBrand,
     setSelectedCategory,
     setIsComparisonModalOpen,
+    setIsCompatibilityFinderOpen,
     heroBanners,
   } = useStore();
 
@@ -96,10 +97,19 @@ export const Hero: React.FC = () => {
                     <span>{lang === 'ar' ? '←' : '→'}</span>
                   </button>
 
+                  {/* Feature: Open Smart Compatibility Finder */}
+                  <button
+                    onClick={() => setIsCompatibilityFinderOpen(true)}
+                    className="px-4 py-3 rounded-xl font-semibold text-xs sm:text-sm bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <Cpu className="w-4 h-4 text-cyan-400" />
+                    <span>{lang === 'ar' ? 'فاحص توافق جهازك' : 'Check Compatibility'}</span>
+                  </button>
+
                   {/* Feature: Open Product Comparison Modal */}
                   <button
                     onClick={() => setIsComparisonModalOpen(true)}
-                    className="px-4 py-3 rounded-xl font-semibold text-xs sm:text-sm bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-cyan-500/50 transition-all flex items-center gap-2 shadow-sm"
+                    className="px-4 py-3 rounded-xl font-semibold text-xs sm:text-sm bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-cyan-500/50 transition-all flex items-center gap-2 shadow-sm cursor-pointer"
                   >
                     <ArrowLeftRight className="w-4 h-4 text-cyan-400" />
                     <span>{lang === 'ar' ? 'أداة مقارنة المواصفات' : 'Compare Products'}</span>
