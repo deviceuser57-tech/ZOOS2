@@ -1,0 +1,6 @@
+{
+  "name": "VoltX Dropship | متجر إكسسوارات الهواتف والساعات الذكية",
+  "description": "متجر إلكتروني متكامل لبيع إكسسوارات الهواتف المحمولة والسماعات والساعات الذكية بنظام الدروب شيبينغ وإدارة الموردين",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
