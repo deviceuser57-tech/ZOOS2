@@ -17,6 +17,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { Product, DropshipSupplier } from '../types';
 import { HERO_IMAGE_URL, SMARTWATCH_IMAGE_URL, HEADPHONES_IMAGE_URL, CHARGER_IMAGE_URL } from '../data/mockProducts';
+import { StockAlertManager } from './StockAlertManager';
 
 export const DropshipOpsPortal: React.FC = () => {
   const {
@@ -106,6 +107,29 @@ export const DropshipOpsPortal: React.FC = () => {
             sourceType: 'dropshipping_direct',
         };
 
+        // Automatically refine content for professional dropshipping listing
+        try {
+            const { AiProductRefiner } = await import('../utils/AiProductRefiner');
+            const { AI_ELECTRONICS_PROMPT_PRESETS } = await import('../constants');
+            const style = AI_ELECTRONICS_PROMPT_PRESETS.find(p => p.id === 'minimalist-titanium');
+            
+            const refined = await AiProductRefiner.refineMarketingContent(
+                importTitleEn || importTitleAr,
+                importTitleAr,
+                newProd.descriptionAr,
+                'minimalist-titanium',
+                style?.promptSnippet || ''
+            );
+
+            if (refined.refinedTitleAr) newProd.titleAr = refined.refinedTitleAr;
+            if (refined.refinedDescriptionAr) newProd.descriptionAr = refined.refinedDescriptionAr;
+            newProd.slug = refined.slug;
+            newProd.seoKeywordsAr = refined.seoKeywordsAr;
+            (newProd as any).metaDescriptionEn = refined.metaDescriptionEn;
+        } catch (refineError) {
+            console.warn("AI Refinement skipped or failed during import", refineError);
+        }
+
         addProductFromSupplier(newProd);
         setImportSuccess(true);
         setImportTitleAr('');
@@ -149,6 +173,8 @@ export const DropshipOpsPortal: React.FC = () => {
           {lang === 'ar' ? '← معاينة متجر العملاء' : 'View Customer Storefront →'}
         </button>
       </div>
+
+      <StockAlertManager threshold={25} />
 
       {/* KPI Cards Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -475,13 +501,27 @@ export const DropshipOpsPortal: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'نشر المنتج في المتجر فوراً' : 'Publish Product to Store'}</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={isImporting}
+                  className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 hover:border-cyan-500/50 text-white transition-all flex items-center justify-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4 text-cyan-400" />
+                  <span>{isImporting ? '...' : (lang === 'ar' ? 'إضافة سريعة' : 'Quick Add')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAiStudioSelectedProduct(null);
+                    setIsAiStudioModalOpen(true);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{lang === 'ar' ? 'استيراد ذكي بالرابط (AI Studio)' : 'AI Studio Import (URL)'}</span>
+                </button>
+              </div>
             </form>
           </div>
 

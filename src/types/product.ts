@@ -57,3 +57,11 @@ export interface AdvancedProductVariant {
   stockQuantity: number;
   serialNumbers?: string[];
 }
+
+// New requested properties for architecture alignment
+export interface ProductElectronicDetails {
+  color_hex?: string;
+  compatibility_type?: 'magsafe_compatible' | 'universal_qi' | 'wired_only' | 'bluetooth_multipoint';
+  warranty_months?: number;
+  technical_specs?: Record<string, string | number>;
+}

@@ -16,7 +16,10 @@ import {
   UserRole,
   PosSaleRecord,
   PriceChangeRequest,
+  FulfillmentGroup,
+  TransactionalOutboxEvent,
 } from '../types';
+import { AtomicReserve } from '../utils/AtomicReserve';
 
 import {
   INITIAL_PRODUCTS,
@@ -150,11 +153,15 @@ interface StoreContextType {
   addToBrowsingHistory: (productId: string) => void;
   getRecommendations: (productId: string) => Product[];
 
-  // Dynamic Pricing Requests
+  // Dynamic Pricing
   priceChangeRequests: PriceChangeRequest[];
   requestDynamicPriceChange: (productId: string, newPriceUSD: number, reason: string) => void;
   approvePriceChange: (requestId: string) => void;
   rejectPriceChange: (requestId: string) => void;
+
+  // Transactional Outbox
+  outbox: TransactionalOutboxEvent[];
+  processOutboxEvent: (eventId: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -162,6 +169,7 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 const SAMPLE_ORDERS: Order[] = [
   {
     id: 'ZE-78219',
+    orderNumber: 'ZE-2026-001',
     customerName: 'فهد عبد الله العتيبي',
     customerPhone: '+966 50 123 4567',
     customerEmail: 'fahad@example.com',
@@ -169,78 +177,25 @@ const SAMPLE_ORDERS: Order[] = [
     shippingAddress: 'حي الياسمين، شارع أنس بن مالك، فيلا 14',
     fulfillmentType: 'courier_delivery',
     paymentMethod: 'cod',
+    paymentStatus: 'pending',
     items: [
-      {
-        product: INITIAL_PRODUCTS[0],
-        selectedVariant: INITIAL_PRODUCTS[0].variants[0],
-        quantity: 1,
-      },
-      {
-        product: INITIAL_PRODUCTS[3],
-        selectedVariant: INITIAL_PRODUCTS[3].variants[0],
-        quantity: 1,
-      },
+      { product: INITIAL_PRODUCTS[0], selectedVariant: INITIAL_PRODUCTS[0].variants[0], quantity: 1 },
+      { product: INITIAL_PRODUCTS[3], selectedVariant: INITIAL_PRODUCTS[3].variants[0], quantity: 1 },
     ],
+    fulfillmentGroups: [
+      { id: 'fg-1', source: 'dropship_supplier', supplierName: 'Shenzhen Apex Tech', items: [{ product: INITIAL_PRODUCTS[0], selectedVariant: INITIAL_PRODUCTS[0].variants[0], quantity: 1 }], status: 'processing' },
+      { id: 'fg-2', source: 'dropship_supplier', supplierName: 'Shenzhen Apex Tech', items: [{ product: INITIAL_PRODUCTS[3], selectedVariant: INITIAL_PRODUCTS[3].variants[0], quantity: 1 }], status: 'processing' },
+    ],
+    subtotalUSD: 108.98,
+    shippingFeeUSD: 0,
     totalUSD: 108.98,
     supplierCostUSD: 37.00,
     profitUSD: 71.98,
     currency: 'SAR',
-    status: 'dispatched_supplier',
+    status: 'processing',
     trackingNumber: 'ZE-78219',
-    supplierTrackingNumber: 'CJ-EXP-940281903',
     createdAt: '2026-11-03T14:32:00Z',
-    supplierName: 'Shenzhen Apex Tech Dropship Direct',
-  },
-  {
-    id: 'ZE-78220',
-    customerName: 'سارة محمد الشامسي',
-    customerPhone: '+971 52 987 6543',
-    customerEmail: 'sara.s@example.com',
-    city: 'دبي',
-    shippingAddress: 'دبي مارينا، برج المارينا جيت 2، شقة 1804',
-    fulfillmentType: 'courier_delivery',
-    paymentMethod: 'apple_pay',
-    items: [
-      {
-        product: INITIAL_PRODUCTS[1],
-        selectedVariant: INITIAL_PRODUCTS[1].variants[0],
-        quantity: 1,
-      },
-    ],
-    totalUSD: 69.99,
-    supplierCostUSD: 24.00,
-    profitUSD: 45.99,
-    currency: 'AED',
-    status: 'in_transit',
-    trackingNumber: 'ZE-78220',
-    supplierTrackingNumber: 'AE-GLB-449102831',
-    createdAt: '2026-11-02T10:15:00Z',
-    supplierName: 'Guangzhou Soundwave Electronic Co.',
-  },
-  {
-    id: 'ZE-78221',
-    customerName: 'أحمد محمود السعيد',
-    customerPhone: '+20 100 555 4321',
-    customerEmail: 'ahmed.m@example.com',
-    city: 'القاهرة الجديدة',
-    shippingAddress: 'استلام مباشر من كاونتر بارتشن X-Mall',
-    fulfillmentType: 'click_and_collect_xmall',
-    paymentMethod: 'instapay',
-    items: [
-      {
-        product: INITIAL_PRODUCTS[2],
-        selectedVariant: INITIAL_PRODUCTS[2].variants[0],
-        quantity: 1,
-      },
-    ],
-    totalUSD: 44.99,
-    supplierCostUSD: 14.20,
-    profitUSD: 30.79,
-    currency: 'EGP',
-    status: 'ready_for_pickup',
-    trackingNumber: 'ZE-78221',
-    createdAt: '2026-11-04T18:45:00Z',
-    supplierName: 'Dongguan PowerPro Tech Direct',
+    updatedAt: '2026-11-03T14:32:00Z',
   },
 ];
 
@@ -312,6 +267,34 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // AI Image Studio & Product Editor
   const [isAiStudioModalOpen, setIsAiStudioModalOpen] = useState(false);
   const [aiStudioSelectedProduct, setAiStudioSelectedProduct] = useState<Product | null>(null);
+
+  // Transactional Outbox
+  const [outbox, setOutbox] = useState<TransactionalOutboxEvent[]>([]);
+
+  const addOutboxEvent = (
+    eventType: TransactionalOutboxEvent['eventType'],
+    aggregateType: TransactionalOutboxEvent['aggregateType'],
+    aggregateId: string,
+    payload: any
+  ) => {
+    const newEvent: TransactionalOutboxEvent = {
+      id: `evt-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      eventType,
+      aggregateType,
+      aggregateId,
+      payload,
+      status: 'pending',
+      retryCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+    setOutbox(prev => [newEvent, ...prev]);
+  };
+
+  const processOutboxEvent = (eventId: string) => {
+    setOutbox(prev => prev.map(evt => 
+      evt.id === eventId ? { ...evt, status: 'processed', processedAt: new Date().toISOString() } : evt
+    ));
+  };
 
   const [suppliers] = useState<DropshipSupplier[]>(MOCK_SUPPLIERS);
 
@@ -672,27 +655,94 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Orders creation
-  const createOrder = (orderData: Omit<Order, 'id' | 'createdAt' | 'status' | 'trackingNumber'>): Order => {
-    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-    const trackingNumber = `ZE-${randomSuffix}`;
+  const createOrder = (orderData: Partial<Order>): Order => {
+    const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+    
+    // 1. Group items by source for split fulfillment
+    const xMallItems = cart.filter(item => item.product.sourceType === 'owned_x_mall');
+    const dropshipItems = cart.filter(item => item.product.sourceType === 'dropshipping_direct');
+    
+    const fulfillmentGroups: FulfillmentGroup[] = [];
+    
+    if (xMallItems.length > 0) {
+      fulfillmentGroups.push({
+        id: `fg-local-${orderId}`,
+        source: 'x_mall_stock',
+        items: [...xMallItems],
+        status: 'confirmed'
+      });
+      
+      // Simulate Atomic Reservation for local items
+      xMallItems.forEach(async (item) => {
+        const balances = locationStocks.map(s => ({
+          variantId: item.selectedVariant.id,
+          locationId: 'loc-xmall',
+          onHand: s.onHand,
+          reserved: s.reserved
+        })).filter(b => b.variantId === item.selectedVariant.id);
+        
+        await AtomicReserve.reserveStockAtomic({
+          variantId: item.selectedVariant.id,
+          locationId: 'loc-xmall',
+          requestedQty: item.quantity,
+          orderId: orderId
+        }, balances as any);
+        
+        updateStock(item.product.id, 'loc-xmall', 0);
+      });
+
+      addOutboxEvent('STOCK_RESERVED', 'STOCK', orderId, { items: xMallItems });
+    }
+    
+    if (dropshipItems.length > 0) {
+      dropshipItems.forEach(item => {
+        fulfillmentGroups.push({
+          id: `fg-ds-${item.product.id}-${orderId}`,
+          source: 'dropship_supplier',
+          supplierName: item.product.supplierName,
+          items: [item],
+          status: 'pending_payment'
+        });
+      });
+      
+      addOutboxEvent('FULFILLMENT_REQUESTED', 'ORDER', orderId, { dropshipItems });
+    }
+
     const newOrder: Order = {
-      ...orderData,
-      id: trackingNumber,
-      trackingNumber,
+      id: orderId,
+      orderNumber: `ZE-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      customerName: orderData.customerName || 'Anonymous',
+      customerPhone: orderData.customerPhone || '',
+      customerEmail: orderData.customerEmail,
+      city: orderData.city || '',
+      shippingAddress: orderData.shippingAddress || '',
+      fulfillmentType: orderData.fulfillmentType || 'courier_delivery',
+      paymentMethod: orderData.paymentMethod || 'cod',
+      paymentStatus: 'pending',
+      items: [...cart],
+      fulfillmentGroups,
+      subtotalUSD: cartTotalUSD,
+      shippingFeeUSD: orderData.shippingFeeUSD || 0,
+      totalUSD: cartTotalUSD + (orderData.shippingFeeUSD || 0),
+      supplierCostUSD: cart.reduce((sum, i) => sum + (i.product.supplierCostUSD * i.quantity), 0),
+      profitUSD: 0,
+      currency: currency,
+      status: 'confirmed',
+      trackingNumber: `TRK-ZOSS-${orderId}`,
       createdAt: new Date().toISOString(),
-      status: orderData.fulfillmentType === 'click_and_collect_xmall' ? 'ready_for_pickup' : 'pending_supplier',
+      updatedAt: new Date().toISOString(),
     };
+    
+    newOrder.profitUSD = newOrder.totalUSD - newOrder.supplierCostUSD;
 
     setOrders((prev) => [newOrder, ...prev]);
-    clearCart();
     setIsCheckoutOpen(false);
-    setActiveTrackingId(trackingNumber);
+    setActiveTrackingId(newOrder.id);
     setActiveView('tracking');
-    addAuditLog(
-      'order_fulfilled',
-      trackingNumber,
-      `طلب جديد (${orderData.fulfillmentType === 'click_and_collect_xmall' ? 'استلام من المعرض' : 'شحن منزلي'}) بقيمة ${formatPrice(orderData.totalUSD)}`
-    );
+
+    addAuditLog('order_fulfilled', newOrder.orderNumber, `إنشاء طلب جديد بمجموعات تنفيذ متعددة (Split Fulfillment).`);
+    
+    clearCart();
     return newOrder;
   };
 
@@ -844,6 +894,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         requestDynamicPriceChange,
         approvePriceChange,
         rejectPriceChange,
+        outbox,
+        processOutboxEvent,
       }}
     >
       {children}

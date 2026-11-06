@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, Truck, CreditCard, Banknote, CheckCircle2, Lock, Store, MapPin } from 'lucide-react';
+import { X, ShieldCheck, Truck, CreditCard, Banknote, CheckCircle2, Lock, Store, MapPin, Tag } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { SecureCheckoutProcessor } from '../utils/SecureCheckoutProcessor';
 
 export const CheckoutModal: React.FC = () => {
   const {
@@ -20,55 +21,51 @@ export const CheckoutModal: React.FC = () => {
   const [city, setCity] = useState(lang === 'ar' ? 'الرياض' : 'Riyadh');
   const [address, setAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'card' | 'apple_pay' | 'instapay'>('cod');
+  const [couponCode, setCouponCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   if (!isCheckoutOpen) return null;
 
-  const totalSupplierCostUSD = cart.reduce(
-    (sum, item) => sum + item.product.supplierCostUSD * item.quantity,
-    0
-  );
-  const profitUSD = cartTotalUSD - totalSupplierCostUSD;
+  const totals = SecureCheckoutProcessor.calculateTotals(cart, city, couponCode);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!name.trim() || !phone.trim()) {
-      setError(lang === 'ar' ? 'يرجى إدخال الاسم ورقم الهاتف' : 'Please provide name and phone number');
-      return;
-    }
+    const validation = SecureCheckoutProcessor.validateShippingDetails({
+      name,
+      phone,
+      city,
+      address: fulfillmentType === 'click_and_collect_xmall' ? 'X-Mall Partition Store Pickup' : address,
+    });
 
-    if (fulfillmentType === 'courier_delivery' && !address.trim()) {
-      setError(lang === 'ar' ? 'يرجى إدخال عنوان التوصيل المنزلي بالتفصيل' : 'Please enter delivery address');
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
+      setError(lang === 'ar' ? `يرجى مراجعة البيانات: ${firstError}` : `Validation Error: ${firstError}`);
       return;
     }
 
     setIsSubmitting(true);
 
-    const shippingAddr =
-      fulfillmentType === 'click_and_collect_xmall'
-        ? (lang === 'ar' ? 'استلام فوري من كاونتر بارتشن Zoos - مول X-Mall بوابة 3' : 'Click & Collect: Zoos X-Mall Partition Gate 3')
-        : address;
-
-    setTimeout(() => {
-      createOrder({
-        customerName: name,
-        customerPhone: phone,
-        city: fulfillmentType === 'click_and_collect_xmall' ? 'الرياض (X-Mall)' : city,
-        shippingAddress: shippingAddr,
-        fulfillmentType,
-        paymentMethod: paymentMethod === 'instapay' ? 'instapay' : paymentMethod,
-        items: [...cart],
-        totalUSD: cartTotalUSD,
-        supplierCostUSD: totalSupplierCostUSD,
-        profitUSD,
+    try {
+      const mappedPaymentMethod = paymentMethod === 'card' ? 'paymob_card' : paymentMethod;
+      
+      const order = await SecureCheckoutProcessor.processOrder(
+        { name, phone, city, address: fulfillmentType === 'click_and_collect_xmall' ? 'X-Mall Partition Store Pickup' : address },
+        cart,
+        mappedPaymentMethod as any,
         currency,
-        supplierName: cart[0]?.product.supplierName || 'Zoos Direct Hub',
-      });
+        couponCode
+      );
+
+      createOrder(order);
+      setIsCheckoutOpen(false);
+    } catch (err: any) {
+      setError(err.message || 'Error processing order');
+    } finally {
       setIsSubmitting(false);
-    }, 700);
+    }
   };
 
   return (
@@ -340,14 +337,55 @@ export const CheckoutModal: React.FC = () => {
             </div>
           </div>
 
+          {/* Coupon Code Input */}
+          <div className="p-4 bg-slate-900/40 rounded-2xl border border-slate-800 mb-6">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5" />
+              {lang === 'ar' ? 'لديك كوبون خصم؟' : 'Apply Coupon'}
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder={lang === 'ar' ? 'أدخل الرمز هنا (مثال: ZOSS10)' : 'Enter code (e.g. ZOSS10)'}
+                className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Detailed Price Breakdown */}
+          <div className="space-y-2 mb-6 px-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-400">{lang === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:'}</span>
+              <span className="text-white font-mono">{formatPrice(totals.subtotalUSD)}</span>
+            </div>
+            {totals.discountUSD > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-emerald-400 font-bold">{lang === 'ar' ? 'خصم الكوبون:' : 'Discount:'}</span>
+                <span className="text-emerald-400 font-mono">-{formatPrice(totals.discountUSD)}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-400">{lang === 'ar' ? 'الشحن والتوصيل:' : 'Shipping:'}</span>
+              <span className="text-white font-mono">
+                {totals.shippingUSD === 0 ? (lang === 'ar' ? 'مجاني' : 'FREE') : formatPrice(totals.shippingUSD)}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-400">{lang === 'ar' ? 'ضريبة القيمة المضافة (15%):' : 'VAT (15%):'}</span>
+              <span className="text-white font-mono">{formatPrice(totals.taxUSD)}</span>
+            </div>
+          </div>
+
           {/* Summary & Submit */}
           <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <span className="text-xs text-slate-400 block">
-                {lang === 'ar' ? 'إجمالي الدفع المستحق:' : 'Total Payable:'}
+                {lang === 'ar' ? 'إجمالي الدفع النهائي:' : 'Final Total Payable:'}
               </span>
               <span className="text-xl sm:text-2xl font-extrabold text-cyan-400 tabular-nums">
-                {formatPrice(cartTotalUSD)}
+                {formatPrice(totals.totalUSD)}
               </span>
             </div>
 

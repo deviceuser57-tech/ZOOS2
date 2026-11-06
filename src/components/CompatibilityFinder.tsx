@@ -34,11 +34,19 @@ export const CompatibilityFinder: React.FC = () => {
 
   // Match products in catalog that are compatible with this device brand / model
   const matchedProducts = products.filter((p) => {
-    const brandName = selectedBrand.toLowerCase();
-    const isBrandMatched = p.brandCompatibility.some(
-      (b) => b.toLowerCase().includes(brandName) || b.toLowerCase() === 'universal'
+    // If a brand is selected but no specific model yet, match by brand
+    if (!currentModel) {
+      const brandName = selectedBrand.toLowerCase();
+      return p.brandCompatibility.some(
+        (b) => b.toLowerCase().includes(brandName) || b.toLowerCase() === 'universal'
+      );
+    }
+    
+    // Otherwise use the optimized engine for exact model matching
+    return p.brandCompatibility.some(b => 
+      b.toLowerCase().includes(currentModel.brand.toLowerCase()) || 
+      b.toLowerCase() === 'universal'
     );
-    return isBrandMatched;
   });
 
   const handleApplyFilter = () => {

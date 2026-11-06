@@ -59,12 +59,19 @@ export const OrderTrackingView: React.FC = () => {
 
   const getStepStatus = (stepKey: string, currentStatus: Order['status']) => {
     const orderRanks: Record<Order['status'], number> = {
+      draft: 0,
+      pending_payment: 0,
+      confirmed: 1,
+      processing: 1,
       pending_supplier: 1,
       dispatched_supplier: 2,
       in_transit: 3,
       out_for_delivery: 4,
       ready_for_pickup: 4,
+      partially_fulfilled: 4,
+      fulfilled: 5,
       delivered: 5,
+      cancelled: 0,
     };
     const stepRanks: Record<string, number> = {
       pending_supplier: 1,

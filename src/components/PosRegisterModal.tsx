@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Search, Barcode, ShoppingCart, Printer, CheckCircle, CreditCard, Banknote, Smartphone, Plus, Trash2 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product, ProductVariant, PosSaleRecord } from '../types';
+import { PosReceipt } from './PosReceipt';
 
 export const PosRegisterModal: React.FC = () => {
   const {
@@ -19,6 +20,7 @@ export const PosRegisterModal: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'instapay'>('cash');
   const [cashierName] = useState('م. أحمد (كاشير فرع X-Mall)');
   const [completedSale, setCompletedSale] = useState<PosSaleRecord | null>(null);
+  const [serials, setSerials] = useState<Record<string, string>>({}); // sku-idx -> serial
 
   if (!isPosModalOpen) return null;
 
@@ -86,7 +88,7 @@ export const PosRegisterModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
       <div
-        className="relative w-full max-w-5xl bg-[#0d1117] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl text-slate-100 my-4 flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
+        className="relative w-full max-w-5xl bg-[#090c10] border border-slate-800/80 rounded-3xl overflow-hidden shadow-2xl text-slate-100 my-4 flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}
@@ -172,6 +174,16 @@ export const PosRegisterModal: React.FC = () => {
                           <p className="text-[11px] text-slate-400 font-mono">
                             {item.product.sku} · {lang === 'ar' ? item.variant.nameAr : item.variant.nameEn}
                           </p>
+                          {/* Serial Number Input for X-Mall Stock (Phase 5) */}
+                          <div className="mt-1.5">
+                            <input
+                              type="text"
+                              value={serials[`${item.product.sku}-${idx}`] || ''}
+                              onChange={(e) => setSerials(prev => ({ ...prev, [`${item.product.sku}-${idx}`]: e.target.value }))}
+                              placeholder={lang === 'ar' ? 'أدخل السيريال (S/N)...' : 'Enter Serial S/N...'}
+                              className="w-full bg-slate-900 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-cyan-400 focus:border-cyan-500/50 outline-none"
+                            />
+                          </div>
                         </div>
 
                         {/* Quantity Stepper */}

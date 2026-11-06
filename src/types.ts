@@ -77,6 +77,11 @@ export interface Product {
   stockQuantity: number;
   warrantyMonths: number;
   sourceType: 'owned_x_mall' | 'dropshipping_direct';
+  seoKeywordsAr?: string[];
+  slug?: string;
+  metaDescriptionAr?: string;
+  metaDescriptionEn?: string;
+  compatibilityType?: 'magsafe_compatible' | 'universal_qi' | 'wired_only' | 'bluetooth_multipoint';
 }
 
 export interface CartItem {
@@ -85,25 +90,40 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface FulfillmentGroup {
+  id: string;
+  source: 'x_mall_stock' | 'dropship_supplier';
+  supplierName?: string;
+  items: CartItem[];
+  status: Order['status'];
+  trackingNumber?: string;
+}
+
 export interface Order {
   id: string;
+  orderNumber: string; // New: Display order number
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
   city: string;
   shippingAddress: string;
   fulfillmentType: 'courier_delivery' | 'click_and_collect_xmall';
-  paymentMethod: 'cod' | 'card' | 'apple_pay' | 'pos_cash' | 'instapay';
+  paymentMethod: 'cod' | 'paymob_card' | 'instapay' | 'vodafone_cash' | 'pos_cash_xmall' | 'pos_card_xmall' | 'apple_pay';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   items: CartItem[];
+  fulfillmentGroups: FulfillmentGroup[]; // New: Split fulfillment support
+  subtotalUSD: number;
+  shippingFeeUSD: number;
   totalUSD: number;
   supplierCostUSD: number;
   profitUSD: number;
   currency: CurrencyCode;
-  status: 'pending_supplier' | 'dispatched_supplier' | 'in_transit' | 'out_for_delivery' | 'ready_for_pickup' | 'delivered';
-  trackingNumber: string;
+  status: 'draft' | 'pending_payment' | 'confirmed' | 'processing' | 'partially_fulfilled' | 'fulfilled' | 'delivered' | 'cancelled' | 'pending_supplier' | 'dispatched_supplier' | 'ready_for_pickup' | 'in_transit' | 'out_for_delivery';
+  trackingNumber: string; // Primary tracking
   supplierTrackingNumber?: string;
+  supplierName?: string;
   createdAt: string;
-  supplierName: string;
+  updatedAt: string;
 }
 
 export interface DropshipSupplier {
@@ -176,4 +196,15 @@ export interface PriceChangeRequest {
   reason: string;
   requestedAt: string;
   status: 'pending' | 'approved' | 'rejected';
+}
+export interface TransactionalOutboxEvent {
+  id: string;
+  eventType: 'STOCK_RESERVED' | 'ORDER_PAID' | 'FULFILLMENT_REQUESTED' | 'TRACKING_UPDATED' | 'PAYMENT_COMPLETED';
+  aggregateType: 'ORDER' | 'STOCK' | 'CUSTOMER';
+  aggregateId: string;
+  payload: any;
+  status: 'pending' | 'processed' | 'failed';
+  retryCount: number;
+  createdAt: string;
+  processedAt?: string;
 }

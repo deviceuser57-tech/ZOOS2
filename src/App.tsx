@@ -19,6 +19,8 @@ import { PromotionalCarousel } from './components/PromotionalCarousel';
 import { CartToast } from './components/CartToast';
 import { CompatibilityFinder } from './components/CompatibilityFinder';
 import { Footer } from './components/Footer';
+import { useOrderOutboxProcessor } from './hooks/useOrderOutboxProcessor';
+import { useWhatsAppNotifications } from './hooks/useWhatsAppNotifications';
 import { Smartphone, Headphones, Watch, Filter, ArrowLeftRight, Cpu } from 'lucide-react';
 
 const MainContent: React.FC = () => {
@@ -39,6 +41,8 @@ const MainContent: React.FC = () => {
     setSelectedCompatibilityDevice,
     setIsCompatibilityFinderOpen,
   } = useStore();
+
+  useOrderOutboxProcessor();
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -113,53 +117,17 @@ const MainContent: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Category Segmented Tabs */}
-                <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto self-start sm:self-auto shadow-sm dark:shadow-none">
+                {/* Category Segmented Tabs (Simplified per request - removed specific tech categories from tabs) */}
+                <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#0c0f14] border border-slate-200 dark:border-slate-800/80 rounded-xl overflow-x-auto self-start sm:self-auto shadow-sm dark:shadow-none">
                   <button
                     onClick={() => setSelectedCategory('all')}
-                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
+                    className={`px-5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
                       selectedCategory === 'all'
                         ? 'bg-cyan-500 text-slate-950 shadow-sm'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    {lang === 'ar' ? 'الكل' : 'All'}
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedCategory('phone_accessories')}
-                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-                      selectedCategory === 'phone_accessories'
-                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Smartphone className="w-3.5 h-3.5" />
-                    <span>{lang === 'ar' ? 'إكسسوارات الهواتف' : 'Phone Gear'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedCategory('earphones')}
-                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-                      selectedCategory === 'earphones'
-                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Headphones className="w-3.5 h-3.5" />
-                    <span>{lang === 'ar' ? 'السماعات' : 'Audio & ANC'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedCategory('smartwatches')}
-                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-                      selectedCategory === 'smartwatches'
-                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Watch className="w-3.5 h-3.5" />
-                    <span>{lang === 'ar' ? 'الساعات الذكية' : 'Smartwatches'}</span>
+                    {lang === 'ar' ? 'جميع المنتجات' : 'All Catalog'}
                   </button>
                 </div>
               </div>

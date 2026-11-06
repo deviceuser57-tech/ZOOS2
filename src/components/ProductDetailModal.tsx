@@ -273,7 +273,7 @@ export const ProductDetailModal: React.FC = () => {
               </div>
 
               {/* Technical Specifications */}
-              <div className="mb-3 bg-slate-950/60 rounded-xl p-3 border border-slate-800/80">
+              <div className="mb-3 bg-slate-50 dark:bg-[#0c0f14]/60 rounded-xl p-3 border border-slate-200 dark:border-slate-800/80">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
                   {lang === 'ar' ? 'المواصفات الفنية المعتمدة' : 'Verified Technical Specs'}
                 </span>
